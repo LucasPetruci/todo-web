@@ -1,20 +1,19 @@
 import React from "react";
-import "./App.css";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./Views/login";
+import Register from "./Views/register";
 import Todo from "./Views/todo";
 
-function App() {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
-
+const App: React.FC = () => {
   return (
-    <div>
-      {isLoggedIn ? <Todo /> : <Login onLogin={handleLogin} />}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login onLogin={() => {}} />} />
+        <Route path="/register" element={<Register onRegister={() => {}} />} />
+        <Route path="/todo" element={<Todo onTodo={() => {}} />} />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;

@@ -8,7 +8,10 @@ import {
   faPen,
 } from "@fortawesome/free-solid-svg-icons";
 
-const Todo: React.FC = () => {
+interface TodoProps {
+  onTodo: () => void;
+}
+const Todo: React.FC<TodoProps> = () => {
   const [newTask, setNewTask] = React.useState("");
   const [showInput, setShowInput] = React.useState(false);
   const [tasks, setTasks] = React.useState<string[]>([]);
