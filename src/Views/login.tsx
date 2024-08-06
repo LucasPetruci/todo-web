@@ -5,6 +5,20 @@ interface LoginProps {
   onLogin: () => void;
 }
 
+export interface User{
+  username: string,
+  email: string,
+  password: string
+
+}
+
+export const list_users: User[] = [
+  {
+    username: "admin",
+    email: "admin@gmail.com",
+    password: "admin"
+  },
+];
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -13,8 +27,13 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const handleLogin = () => {
     if (username && password) {
       onLogin();
+      if (list_users.find((user) => user.username === username && user.password === password)) {
       navigate('/todo');
     }
+    else {
+      alert("Usuário ou senha inválidos");
+    }
+  }
   };
 
   return (
