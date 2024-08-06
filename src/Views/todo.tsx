@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -8,29 +8,56 @@ import {
   faPen,
 } from "@fortawesome/free-solid-svg-icons";
 
+import api from "../Service/api";
+
+interface Task {
+  description: string;
+  completed: boolean;
+}
+
 interface TodoProps {
   onTodo: () => void;
 }
+
 const Todo: React.FC<TodoProps> = () => {
   const [newTask, setNewTask] = React.useState("");
   const [showInput, setShowInput] = React.useState(false);
-  const [tasks, setTasks] = React.useState<string[]>([]);
+  const [tasks, setTasks] = React.useState<Task[]>([]);
   const [editingTaskIndex, setEditingTaskIndex] = React.useState<number | null>(
     null
   );
   const [editingTaskContent, setEditingTaskContent] = React.useState("");
 
   const user = "Ana";
+
+  // useEffect(() => {
+  //   api.get("/tasks").then((response: any) => {
+  //     setTasks(response.data);
+  //   }).catch((error: any) => {
+  //     console.error(error);
+  //   });
+  // }, []);
+
   const handleClick = () => {
     setShowInput(true);
   };
+
   const handleDelete = (index: number) => {
+    // api.delete(`/tasks/${index}`).then((response: any) => {
+    //   setTasks(tasks.filter((_, i) => i !== index));
+    // }
+    // ).catch((error: any) => {
+    //   console.error(error);
+    // });
+
     setTasks(tasks.filter((_, i) => i !== index));
   };
+
   const handleUpdate = (index: number) => {
     setEditingTaskIndex(index);
-    setEditingTaskContent(tasks[index]);
+    setEditingTaskContent(tasks[index].description);
   };
+
   const handleCancel = () => {
     setShowInput(false);
     setNewTask("");
@@ -40,7 +67,11 @@ const Todo: React.FC<TodoProps> = () => {
 
   const handleAddTask = () => {
     if (newTask.trim() !== "") {
-      setTasks([...tasks, newTask]);
+      const newTaskObj: Task = {
+        description: newTask,
+        completed: false,
+      };
+      setTasks([...tasks, newTaskObj]);
       setNewTask("");
       setShowInput(false);
     }
@@ -50,13 +81,23 @@ const Todo: React.FC<TodoProps> = () => {
     if (editingTaskContent.trim() !== "" && editingTaskIndex !== null) {
       setTasks(
         tasks.map((task, i) =>
-          i === editingTaskIndex ? editingTaskContent : task
+          i === editingTaskIndex
+            ? { ...task, description: editingTaskContent }
+            : task
         )
       );
       setEditingTaskIndex(null);
       setEditingTaskContent("");
       handleCancel();
     }
+  };
+
+  const handleToggleComplete = (index: number) => {
+    setTasks(
+      tasks.map((task, i) =>
+        i === index ? { ...task, completed: !task.completed } : task
+      )
+    );
   };
 
   return (
@@ -68,7 +109,11 @@ const Todo: React.FC<TodoProps> = () => {
           {tasks.map((task, index) => (
             <li key={index} className="mb-3">
               <div className="flex items-center border border-gray-300 rounded-lg p-3 w-full">
-                <input type="checkbox" />
+                <input
+                  type="checkbox"
+                  checked={task.completed}
+                  onChange={() => handleToggleComplete(index)}
+                />
                 {editingTaskIndex === index ? (
                   <input
                     className="pl-3 flex-grow border rounded-lg p-2"
@@ -77,7 +122,13 @@ const Todo: React.FC<TodoProps> = () => {
                     onChange={(e) => setEditingTaskContent(e.target.value)}
                   />
                 ) : (
-                  <div className="pl-3 flex-grow">{task}</div>
+                  <div
+                    className={`pl-3 flex-grow ${
+                      task.completed ? "line-through" : ""
+                    }`}
+                  >
+                    {task.description}
+                  </div>
                 )}
                 <div className="flex space-x-2 ml-auto">
                   {editingTaskIndex === index ? (

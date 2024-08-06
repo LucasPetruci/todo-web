@@ -20,14 +20,14 @@ export const list_users: User[] = [
   },
 ];
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
-  const [username, setUsername] = React.useState("");
+  const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    if (username && password) {
+    if (email && password) {
       onLogin();
-      if (list_users.find((user) => user.username === username && user.password === password)) {
+      if (list_users.find((user) => user.email === email && user.password === password)) {
       navigate('/todo');
     }
     else {
@@ -44,6 +44,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           backgroundImage: "url('/background.png')",
           backgroundSize: "100%",
           boxShadow: "inset 0 0 0 1000px rgba(0, 0, 0, 0.5)",
+       
         }}
       ></div>
       <div className="relative flex flex-col p-20 rounded-lg shadow-lg bg-white w-4/5 md:w-1/2 lg:w-1/3">
@@ -55,8 +56,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <input
             type="email"
             placeholder="Email"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="mb-4 p-3 text-lg border rounded w-full"
           />
           <p className="text-lg mb-2">Senha</p>
@@ -79,7 +80,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <h3 className="text-lg">
               Não possui uma conta?{" "}
               <a href="/register" className="text-blue-500 underline">
-                Cadastre-se
+                Criar conta
               </a>
             </h3>
           </div>
