@@ -6,7 +6,7 @@ interface LoginProps {
 }
 
 export interface User{
-  username: string,
+  name: string,
   email: string,
   password: string
 
@@ -14,7 +14,7 @@ export interface User{
 
 export const list_users: User[] = [
   {
-    username: "admin",
+    name: "admin",
     email: "admin@gmail.com",
     password: "admin"
   },
