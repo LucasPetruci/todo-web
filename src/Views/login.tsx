@@ -1,39 +1,33 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import { AuthService } from "../service/AuthService";
+import { setTokenToLocalStorage } from "../helpers/localStorage.helper";
+import { useAppDispatch } from "../store/hooks";
+import { login } from '../store/user/userSlice';
 
 interface LoginProps {
   onLogin: () => void;
 }
 
-export interface User{
-  name: string,
-  email: string,
-  password: string
-
-}
-
-export const list_users: User[] = [
-  {
-    name: "admin",
-    email: "admin@gmail.com",
-    password: "admin"
-  },
-];
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    if (email && password) {
-      onLogin();
-      if (list_users.find((user) => user.email === email && user.password === password)) {
-      navigate('/todo');
+  const loginHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    try {
+      e.preventDefault();
+      const data = await AuthService.login({ email, password });
+      if (data) {
+        setTokenToLocalStorage('access_token', data.access_token); 
+        dispatch(login(data));
+        navigate('/todo'); // Redireciona para a página de tarefas
+      }
+    } catch (err: any) {
+      const error = err.response?.data.message;
+      console.log(error);
     }
-    else {
-      alert("Usuário ou senha inválidos");
-    }
-  }
   };
 
   return (
@@ -44,7 +38,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           backgroundImage: "url('/background.png')",
           backgroundSize: "100%",
           boxShadow: "inset 0 0 0 1000px rgba(0, 0, 0, 0.5)",
-       
         }}
       ></div>
       <div className="relative flex flex-col p-20 rounded-lg shadow-lg bg-white w-4/5 md:w-1/2 lg:w-1/3">
@@ -52,30 +45,31 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <h1 className="text-3xl font-bold mb-6 pb-7 text-center">
             Faça login na sua conta
           </h1>
-          <p className="text-lg mb-2">Email</p>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mb-4 p-3 text-lg border rounded w-full"
-          />
-          <p className="text-lg mb-2">Senha</p>
-          <input
-            type="password"
-            placeholder="Senha"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mb-4 p-3 text-lg border rounded w-full"
-          />
-          <div className="flex justify-center">
-            <button
-              onClick={handleLogin}
-              className="bg-purple-500 text-white p-3 text-lg rounded w-full"
-            >
-              Entrar
-            </button>
-          </div>
+          <form onSubmit={loginHandler}>
+            <p className="text-lg mb-2">Email</p>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mb-4 p-3 text-lg border rounded w-full"
+            />
+            <p className="text-lg mb-2">Senha</p>
+            <input
+              type="password"
+              placeholder="Senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mb-4 p-3 text-lg border rounded w-full"
+            />
+            <div className="flex justify-center">
+              <button
+                className="bg-purple-500 text-white p-3 text-lg rounded w-full"
+              >
+                Entrar
+              </button>
+            </div>
+          </form>
           <div className="text-center mt-6">
             <h3 className="text-lg">
               Não possui uma conta?{" "}

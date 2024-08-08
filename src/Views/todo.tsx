@@ -26,6 +26,11 @@ interface TodoProps {
   onTodo: () => void;
 }
 
+export const taskLoader = async () => {
+    const {data} = await instance.get('/tasks')
+    return data
+  }
+
 const Todo: React.FC<TodoProps> = () => {
   const [newTask, setNewTask] = React.useState("");
   const [showInput, setShowInput] = React.useState(false);
@@ -34,30 +39,21 @@ const Todo: React.FC<TodoProps> = () => {
     null
   );
   const [editingTaskContent, setEditingTaskContent] = React.useState("");
-
-  const user = "Ana";
-
-  // useEffect(() => {
-  //   api.get("/tasks").then((response: any) => {
-  //     setTasks(response.data);
-  //   }).catch((error: any) => {
-  //     console.error(error);
-  //   });
-  // }, []);
+  const [loading, setLoading] = useState(true);
 
   const handleClick = () => {
     setShowInput(true);
   };
 
-  const handleDelete = (index: number) => {
-    // api.delete(`/tasks/${index}`).then((response: any) => {
-    //   setTasks(tasks.filter((_, i) => i !== index));
-    // }
-    // ).catch((error: any) => {
-    //   console.error(error);
-    // });
+  const taskBank = useLoaderData() as ITask[];
 
-    setTasks(tasks.filter((_, i) => i !== index));
+  const user = "Ana";
+
+
+  const handleDelete = async(idTask: number) => {
+    await instance.delete(`/tasks/${idTask}`)
+    window.location.reload();
+    console.log('Task deletada com sucesso')
   };
 
   const handleUpdate = (index: number) => {
@@ -110,18 +106,18 @@ const Todo: React.FC<TodoProps> = () => {
   return (
     <div className="pl-20 pt-20 pr-20">
       <div className="text-2xl font-bold mb-4">Boa tarde, {user}! </div>
-
+        
       <div className="flex flex-col items-start ">
         <ul className="w-full">
-          {tasks.map((task, index) => (
+          {taskBank.map((task, index) => (
             <li key={index} className="mb-3">
               <div className="flex items-center border border-gray-300 rounded-lg p-3 w-full">
                 <input
                   type="checkbox"
-                  checked={task.completed}
+                  checked={task.isCompleted}
                   onChange={() => handleToggleComplete(index)}
                 />
-                {editingTaskIndex === index ? (
+                {editingTaskIndex === task.id ? (
                   <input
                     className="pl-3 flex-grow border rounded-lg p-2"
                     type="text"
@@ -131,7 +127,7 @@ const Todo: React.FC<TodoProps> = () => {
                 ) : (
                   <div
                     className={`pl-3 flex-grow ${
-                      task.completed ? "line-through" : ""
+                      task.isCompleted ? "line-through" : ""
                     }`}
                   >
                     {task.description}
@@ -153,13 +149,13 @@ const Todo: React.FC<TodoProps> = () => {
                   ) : (
                     <>
                       <button
-                        onClick={() => handleUpdate(index)}
+                        onClick={() => handleUpdate(task.id)}
                         className="text-black-500"
                       >
                         <FontAwesomeIcon icon={faPen} />
                       </button>
                       <button
-                        onClick={() => handleDelete(index)}
+                        onClick={() => handleDelete(task.id)}
                         className="text-red-500"
                       >
                         <FontAwesomeIcon icon={faTrash} />
@@ -210,29 +206,3 @@ const Todo: React.FC<TodoProps> = () => {
 
 export default Todo;
  
-
-//  const Todo: React.FC = () => {
-
-//   const dispatch = useAppDispatch()
-//   const navigate = useNavigate()
-
-//   const logoutHandler = () => {
-//     dispatch(logout())
-//     removeTokenFromLocalStorage('token')
-//     console.log('You have successfully logged out')
-//     navigate('/')
-//   }
-
-//   return( <div>
-//      <button onClick={logoutHandler} >
-//        <span>LogOut</span>
-//         <FontAwesomeIcon icon={faSignOutAlt} />
-//        </button>
-//     <br></br>
-//     Todo List
-
-//   </div>);
-// };
-
-// export default Todo;
-

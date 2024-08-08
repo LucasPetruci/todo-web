@@ -1,30 +1,26 @@
 import React, { useState } from "react";
-import { User } from "./login";
-import api from "../Service/api";
+import { useNavigate } from 'react-router-dom';
+import { AuthService } from "../service/AuthService";
 
-interface RegisterProps {
-  onRegister: () => void;
-}
-
-const Register: React.FC<RegisterProps> = () => {
+const Register: React.FC = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  const createUser = async (userData: User) => {
-    try {
-      const response = await api.post('/user', userData);
-      console.log('Usuário criado:', response.data);
-    } catch (error) {
-      console.error('Erro ao criar usuário:', error);
-    }
-  };
-
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    let new_user: User = { name, email, password };
-    console.log(new_user);
-    createUser(new_user);
+    try {
+      const newUser = { name, email, password };
+      const data = await AuthService.registration(newUser);
+      if (data) {
+        navigate('/'); // Redirecionar para a página de login após o registro
+      }
+    } catch (err: any) {
+      const error = err.response?.data.message;
+      setError(error || 'Erro no registro. Tente novamente.');
+    }
   };
 
   return (
@@ -56,8 +52,9 @@ const Register: React.FC<RegisterProps> = () => {
             onChange={(e) => setPassword(e.target.value)}
             className="mb-4 p-3 text-lg border rounded w-full"
           />
+          {error && <p className="text-red-500">{error}</p>}
           <button
-            type="submit"  // Corrija o tipo para "submit"
+            type="submit" 
             className="bg-purple-500 text-white p-3 text-lg rounded w-full mt-3"
           >
             Criar conta
